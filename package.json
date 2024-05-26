@@ -1,0 +1,39 @@
+{
+  "private": true,
+  "scripts": {
+    "validate": "validate-carafe-bundle -b ",
+    "import": "extract-carafe-bundle -b ",
+    "build": "compile-carafe-bundle",
+    "send": "compile-carafe-bundle -s",
+    "force-send": "compile-carafe-bundle -s -f",
+    "watch": "render-carafe-source",
+    "watch-port": "render-carafe-source -p ",
+    "watch-send": "render-carafe-source -s",
+    "watch-send-port": "render-carafe-source -s -p ",
+    "force-watch-send": "render-carafe-source -s -f",
+    "force-watch-send-port": "render-carafe-source -s -f -p "
+  },
+  "devDependencies": {
+    "@carafe-fm/bundler": "^3.1.0"
+  },
+  "carafe": {
+    "templateFilename": "src/template.carafe",
+    "configFilename": "src/config.json",
+    "dataFilename": "src/data.json",
+    "metaFilename": "src/meta.json",
+    "previewFilename": "src/preview.jpg",
+    "librariesDirname": "src/libraries",
+    "sendFmpUrl": "fmp://$/Carafe%20Kitchen?script=Send%20Carafe%20Bundle&param={sendConfig}",
+    "watchedFiles": {}
+  },
+  "dependencies": {
+    "@fullcalendar/bootstrap5": "^6.1.13",
+    "@fullcalendar/core": "^6.1.13",
+    "@fullcalendar/daygrid": "^6.1.13",
+    "@fullcalendar/interaction": "^6.1.13",
+    "@fullcalendar/list": "^6.1.13",
+    "@fullcalendar/resource": "^6.1.13",
+    "@fullcalendar/resource-timeline": "^6.1.13",
+    "@fullcalendar/timegrid": "^6.1.13"
+  }
+}
