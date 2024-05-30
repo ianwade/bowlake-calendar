@@ -1,12 +1,5 @@
 {
-	"allDaySlot": "0",
-	"allowDoubleClick": "1",
-	"clickScript": "Test",
 	"initialDate": "2024-05-27",
-	"dateIncrement": {
-		"days": 7
-	},
-	"doubleclickScript": "Test",
 	"duration": {
 		"days": 134
 	},
@@ -28,7 +21,7 @@
 						"Arrival Date" : "09/06/2024",
 						"Calendar.Color" : "Blue",
 						"Calendar_Include" : 1,
-						"Departure Date" : "09/08/2024",
+						"Departure Date" : "09/10/2024",
 						"Display Guest" : "Jenks",
 						"ID" : "44634C1C-337D-476B-914F-EEFB70724169",
 						"ID_Resource" : "A9025069-5410-429E-932F-36DB1CF83146",
@@ -5627,16 +5620,12 @@
 		}
 	},
 	"filename": "Bowscape-TEST",
-	"firstDayOfWeek": 1,
-	"maxTime": "20:00:00",
-	"minTime": "08:00:00",
 	"resourceColumns": [
 		{
 			"field": "class",
 			"labelText": "Resources"
 		}
 	],
-	"resourceOrder": "Sort",
 	"resources": {
 		"messages" : 
 		[
@@ -6293,7 +6282,7 @@
 	},
 	"schedulerLicenseKey": "GPL-My-Project-Is-Open-Source",
 	"slotDuration": {
-		"days": 2
+		"days": 1
 	},
 	"slotLabelFormat": [
 		{
@@ -6303,10 +6292,16 @@
 			"weekday": "short"
 		}
 	],
-	"slotWidthDays":15,
-	"timelineHeightPixels": 0,
-	"tooltipBackgroundColor": "blue",
-	"tooltipTextColor": "white",
-	"view": "resourceTimeline",
-	"weekends": "0"
+
+	"slotWidthDays": 15,
+	"reservationLength": 2,
+	"resourceAreaWidth": "10%", 
+	"resourceGroupField": "class", 
+	"resourceOrder": "Sort",
+	"updateScript": "FullCalendar: Update Reservation",
+    "viewScript": "FullCalendar: View Reservation",
+    "createScript": "FullCalendar: Create Reservation",
+	"rowHeight": "28px",
+	"textColor": "#212529",
+	"fontSize": "14px"
 }

@@ -14,8 +14,59 @@
     <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css' rel='stylesheet'>
 
     <style>
+        :root {
+            /*--font-size: 14px;*/
+            --font-size: __fontSize__;
+            /*--text-color: #212529;*/
+            --text-color: __textColor__;
+            /*--row-height: 28px;*/
+            --row-height: __rowHeight__;
+
+            --resource-padding: calc((var(--row-height) - var(--font-size)) / 4);
+        }
+
+        body {
+            font-size: var(--font-size);
+        }
+
+        /* handles row height (because FullCalendar sucks and can't do this natively) */
+        .fc-timeline-lane-frame {
+            height: var(--row-height) !important;
+        }
+
         .fc-timeline-event {
-            height: 40px !important;
+            height: var(--row-height) !important;
+        }
+
+        .fc-resource>.fc-datagrid-cell-frame {
+            height: var(--row-height) !important;
+        }
+
+        .fc-resource>.fc-datagrid-cell-frame>.fc-datagrid-cell-cushion {
+            padding: var(--resource-padding) !important;
+        }
+
+        /* handles height of header row (including dates)*/
+        /*thead {
+            height: 70px !important;
+        }
+
+        .fc-timeline-header-row {
+            height: 70px !important;
+        }*/
+
+        /* handles time slot label (date) */
+        .fc-timelime-slot-label {
+            text-decoration: none !important;
+        }
+
+        .fc-scrollgrid-sync-table>col {
+            text-align: center;
+        }
+
+        a {
+            text-decoration: none !important;
+            color: var(--text-color);
         }
     </style>
 
@@ -32,49 +83,36 @@
 
             calendar = new FullCalendar.Calendar(calendarEl, {
 
-                initialView: 'resourceTimeline',
+                initialView: "resourceTimeline",
                 height: window.innerHeight,
-                contentHeight: "parent",
+                contentHeight: "auto",
                 eventStartEditable: true,
                 eventDurationEditable: true,
                 eventResourceEditable: true,
                 eventOverlap: false,
                 stickyHeaderDates: true,
                 stickyFooterScrollbar: true,
-                // headerToolbar: {
-                //     start: 'title', // will normally be on the left. if RTL, will be on the right
-                //     center: '',
-                //     end: 'today prev,next' // will normally be on the right. if RTL, will be on the left
-                // },
                 headerToolbar: false,
-                resourceAreaWidth: "15%",
-                resourceGroupField: 'class',
                 weekends: true,
                 displayEventTime: false,
                 themeSystem: "bootstrap5",
-                schedulerLicenseKey: "__schedulerLicenseKey__",
-                initialDate: "__initialDate__",
+
+                //dynamic properties
                 duration: __duration__,
-                //dateIncrement: __dateIncrement__,
-                firstDay: __firstDayOfWeek__,
-                allDaySlot: __allDaySlot__,
-                slotDuration: 1,
-                slotLabelFormat: __slotLabelFormat__,
+                initialDate: "__initialDate__",
                 resources: prepareResources(__resources__),
                 resourceOrder: "__resourceOrder__",
-                events: null,
-                eventOverlap: false,
+                resourceAreaWidth: "__resourceAreaWidth__",
+                resourceGroupField: "__resourceGroupField__",
+                schedulerLicenseKey: "__schedulerLicenseKey__",
+                slotDuration: __slotDuration__,
+                slotLabelFormat: __slotLabelFormat__,
 
                 //chnages size of the calendar dynamically with the window
                 windowResize: function () {
                     calendar.setOption('height', window.innerHeight);
-                    //calendar.setOption('width', window.innerWidth)
+                    setZoom(__slotWidthDays__);
                 },
-
-                /*eventRender: function(event, element) {
-                    //element.css("height", "40px !important");
-                    //element.css("padding", "5px");
-                },*/
 
                 //handles the movement of an event
                 eventDrop: function (info) {
@@ -86,51 +124,32 @@
                     handleEventChange(info);
                 },
 
-                /*eventChange: function (info) {
-
-                    //capture resourceId of both the old event and the new one (since these aren't included in the normal event object)
-                    let resourceIdOld = info.oldEvent._def.resourceIds[0];
-                    let resourceIdNew = info.event._def.resourceIds[0];
-
-                    //parse and then stringify info so that it looks how it will when FileMaker gets it
-                    let params = JSON.parse(JSON.stringify(info));
-
-                    //set the captured resourceIds
-                    params.oldEvent.resourceId = resourceIdOld;
-                    params.event.resourceId = resourceIdNew;
-
-                    clickEventToFileMakerUrl(params, "event", "FullCalendar: Update Reservation");
-                },*/
-
                 //handles the double-click of an event
                 eventClick: function (info) {
 
-                    // Ignores single clicks. Only responds to double clicks. Hat tip to Carson Lind for the idea.
-                    if (__allowDoubleClick__) {
+                    var dayclickednew = new Date(info.el.fcSeg.start).getTime();
+                    var d = new Date();
+                    var clicktime = d.getTime();
 
-                        var dayclickednew = new Date(info.el.fcSeg.start).getTime();
+                    if (dayclicked == dayclickednew && clicktime - clickstart < 500) {
+                        clickstart = null;
+                        dayclicked = null;
+
+                        //capture resourceId (since these aren't included in the normal event object)
+                        let resourceId = info.event._def.resourceIds[0];
+
+                        //parse and then stringify info so that it looks how it will when FileMaker gets it
+                        let params = JSON.parse(JSON.stringify(info.event));
+
+                        //set the captured resourceId
+                        params.resourceId = resourceId;
+
+                        //clickEventToFileMakerUrl(params, "event", "FullCalendar: View Reservation");
+                        clickEventToFileMakerUrl(params, "__viewScript__");
+                    } else {
+                        dayclicked = dayclickednew;
                         var d = new Date();
-                        var clicktime = d.getTime();
-
-                        if (dayclicked == dayclickednew && clicktime - clickstart < 500) {
-                            clickstart = null;
-                            dayclicked = null;
-
-                            //capture resourceId (since these aren't included in the normal event object)
-                            let resourceId = info.event._def.resourceIds[0];
-
-                            //parse and then stringify info so that it looks how it will when FileMaker gets it
-                            let params = JSON.parse(JSON.stringify(info.event));
-
-                            //set the captured resourceId
-                            params.resourceId = resourceId;
-
-                            clickEventToFileMakerUrl(params, "event", "FullCalendar: View Reservation");
-                        } else {
-                            dayclicked = dayclickednew;
-                            var d = new Date();
-                            clickstart = d.getTime();
-                        }
+                        clickstart = d.getTime();
                     }
 
                     return false;
@@ -139,21 +158,18 @@
                 //handles the double-click of an empty date
                 dateClick: function (info) {
 
-                    // Ignores single clicks. Only responds to double clicks. Hat tip to Carson Lind for the idea.
-                    if (__allowDoubleClick__) {
-                        var dayclickednew = new Date(info.date).getTime();
-                        var d = new Date();
-                        var clicktime = d.getTime();
-                        if (dayclicked == dayclickednew && clicktime - clickstart < 500) {
-                            clickstart = null;
-                            dayclicked = null;
+                    var dayclickednew = new Date(info.date).getTime();
+                    var d = new Date();
+                    var clicktime = d.getTime();
+                    if (dayclicked == dayclickednew && clicktime - clickstart < 500) {
+                        clickstart = null;
+                        dayclicked = null;
 
-                            createReservation(info);
-                        } else {
-                            dayclicked = dayclickednew;
-                            var d = new Date();
-                            clickstart = d.getTime();
-                        }
+                        createReservation(info);
+                    } else {
+                        dayclicked = dayclickednew;
+                        var d = new Date();
+                        clickstart = d.getTime();
                     }
                 },
             });
@@ -164,70 +180,12 @@
 
             //adds initial events when calendar is initialized
             addEvents(__events__);
+
+            //sets zoom level
             setZoom(__slotWidthDays__);
-            // calendar.setOption('dateIncrement', { days: 7 });
-            // console.log(calendar.getOption('dateAlignment'));
-            // console.log(calendar.getDate());
         });
 
-        function clickEventToFileMakerUrl(params, type, script) {
-
-            /*let param = JSON.stringify(info.event);
-            param = JSON.parse(param);
-
-            param.resourceId = info.event._def.resourceIds[0];*/
-
-            //let data = info.event;
-            //let data_ext = data._def.extendedProps;
-
-            /*if(type == "date") {
-
-
-            } else if(type == "event"){
-                param.id = data.id;
-                param.title = data.title;
-                param.resourceId = data._def.resourceIds[0];
-                param.resourceType = data._def.extendedProps.resourcetype;
-                param.resnum = data._def.extendedProps.resnum;
-                param.rate = data._def.extendedProps.rate;
-                param.status = data._def.extendedProps.status;
-            }*/
-
-            /*if (script == "FullCalendar: Update Reservation" || script == "FullCalendar: View Reservation") {
-                data = info.event;
-                data_ext = data._def.extendedProps;
-
-                param.id = data_ext.db_id;
-                param.interal_id = data.id;
-                //param.resource = data._def.resourceIds[0];
-                //param.resourcetype = data._def.extendedProps.resourcetype;
-                //param.resnum = data._def.extendedProps.resnum;
-                //param.rate = data._def.extendedProps.rate;
-            } else if (script == "FullCalendar: Update Reservation") {
-                data = info.event;
-                data_ext = data._def.extendedProps;
-
-                param.id = data_ext.db_id;
-                param.interal_id = data.id;
-                //param.resource = data._def.resourceIds[0];
-                //param.resourcetype = data._def.extendedProps.resourcetype;
-                //param.resnum = data._def.extendedProps.resnum;
-                //param.rate = data._def.extendedProps.rate;
-            } else if (script == "FullCalendar: Create Reservation") {
-                data = info;
-
-                param.id = data.id;
-            }
-
-            param.arrive = FullCalendar.formatDate(data.start);
-            param.leave = FullCalendar.formatDate(data.end);
-            param.resource = data.resourceId;*/
-
-            //param.start = data.start;
-            //param.end = data.end;
-            //param.resourceId = data._def.resourceIds[0];
-
-
+        function clickEventToFileMakerUrl(params, script) {
 
             console.log(params);
 
@@ -240,17 +198,8 @@
             window.location = theURL;
         }
 
-        //adds new eventSource object to calendar from a passed Execute FileMaker Data API json object
-        function addEvents(json) {
-            preparedEvents = prepareEvents(json);
-            eventSource = calendar.addEventSource(preparedEvents);
-        }
-
         //checks if there is an event that exists on this resource for the given date
         function eventExists(date, resourceId) {
-
-            console.log(date);
-            console.log(resourceId);
 
             let events = calendar.getEvents();
 
@@ -259,11 +208,8 @@
                 obj => {
                     if (FullCalendar.formatDate(obj.start) === FullCalendar.formatDate(date) &&
                         obj._def.resourceIds[0] === resourceId) {
-                        console.log(obj);
                         return obj;
                     }
-
-
                 }
             ) || null;
 
@@ -277,50 +223,41 @@
 
             let params = JSON.parse(JSON.stringify(info));
 
-            // if(info.oldResource && info.newResource) {
-
-            // //capture resourceId of both the old event and the new one (since these aren't included in the normal event object)
-            //     params.oldEvent.resourceId = info.oldResource.id;
-            //     params.oldEvent.resourceClass = info.oldResource.extendedProps.class;
-            //     params.oldEvent.resourceType = info.oldResource.extendedProps.type;
-
-            //     params.event.resourceId = info.newResource.id;
-            //     params.event.resourceClass = info.newResource.extendedProps.class;
-            //     params.event.resourceType = info.newResource.extendedProps.type;
-            // }
-
-            // //parse and then stringify info so that it looks how it will when FileMaker gets it
-            
-
-            // //set the captured resourceIds
-            // params.oldEvent.resourceId = resourceIdOld;
-            // params.event.resourceId = resourceIdNew;
-
-            clickEventToFileMakerUrl(params, "event", "FullCalendar: Update Reservation");
+            //clickEventToFileMakerUrl(params, "FullCalendar: Update Reservation");
+            clickEventToFileMakerUrl(params, "__updateScript__");
         }
 
         //creates new event object and a subsequent Reservation record in FM DB
         //has validation to prevent an event from being added to a date that already has an event
         function createReservation(info) {
 
-            console.log(info);
+            //console.log(info);
 
             if (!eventExists(info.dateStr, info.resource.id)) {
+
+                //calculate end date (next-day)
+                let end = new Date(info.dateStr);
+                end.setDate(end.getDate() + __reservationLength__ + 1);
+                end = formatDateFC(FullCalendar.formatDate(end));
 
                 let newEvent = {
                     color: "Gray",
                     title: "New Reservation",
                     start: info.dateStr,
-                    end: info.dateStr,
+                    end: end,
+                    //end: info.dateStr,
                     resourceId: info.resource.id,
                     id: info.dateStr + info.resource.id,
                     editable: false,
                 }
 
-                let eventObj = calendar.addEvent(newEvent);
+                //create new event on calendar
+                let eventObj = calendar.addEvent(newEvent, eventSource);
+
+                console.log(eventObj);
 
                 //capture resourceId (since these aren't included in the normal event object)
-                let resourceId = eventObj._def.resourceIds[0];
+                let resourceId = info.resource.id;
 
                 //parse and then stringify info so that it looks how it will when FileMaker gets it
                 let params = JSON.parse(JSON.stringify(eventObj));
@@ -328,9 +265,10 @@
                 //set the captured resourceId
                 params.resourceId = resourceId;
 
-                clickEventToFileMakerUrl(params, "date", "FullCalendar: Create Reservation");
+                //clickEventToFileMakerUrl(params, "FullCalendar: Create Reservation");
+                clickEventToFileMakerUrl(params, "__createScript__");
 
-                return eventObj;
+                return event;
             }
 
             return null;
@@ -351,25 +289,14 @@
                     "end": formatDateFC(event.fieldData["Departure Date"]),
                     "id": event.fieldData.ID,
 
-
                     //extended props
                     "resnum": event.fieldData["Reservation Number"],
                     "resourceId": event.fieldData.ID_Resource,
                     "seasonId": event.fieldData.ID_Season,
                     "status": event.fieldData.Status,
-
-                    //"resourceType": event.fieldData["Resource Type"],
-                    //"resourceClass": event.fieldData["Resource Class"],
-                    //"include": event.fieldData.Calendar_Include,
-                    //"rate": event.fieldData["Quote.Total Rate"],
                 }
 
                 events.push(event_data);
-
-                // //only push event to events if Calendar_Include is 1
-                // if (event_data.include = 1) {
-                //     events.push(event_data);
-                // }
             }
 
             return events;
@@ -378,7 +305,6 @@
         //processes DAPI Json object from FMP to work with resource objects in FC
         function prepareResources(json) {
 
-            console.log(json);
             let data = json.response.data;
             let resources = [];
 
@@ -408,15 +334,21 @@
             if (!dateStr)
                 return dateStr;
 
-            // Split the input date string by "/"
-            const [month, day, year] = dateStr.split("/");
+            try {
+                // Split the input date string by "/"
+                const [month, day, year] = dateStr.split("/");
 
-            // Pad the month and day with leading zeros if necessary
-            const paddedMonth = (month.length === 1 ? '0' + month : month);
-            const paddedDay = (day.length === 1 ? '0' + day : day);
+                // Pad the month and day with leading zeros if necessary
+                const paddedMonth = (month.length === 1 ? '0' + month : month);
+                const paddedDay = (day.length === 1 ? '0' + day : day);
 
-            // Return the formatted date string in "yyyy-mm-dd" format
-            return `${year}-${paddedMonth}-${paddedDay}`;
+                // Return the formatted date string in "yyyy-mm-dd" format
+                return `${year}-${paddedMonth}-${paddedDay}`;
+
+            } catch {
+                console.error("Date '" + dateStr + "' is invalid and cannot be parsed by formatDateFC()");
+                return null;
+            }
         }
 
         //convert FullCalendar date 'YYYY-MM-DD' to FileMaker Date 'MM/DD/YYYY'
@@ -425,41 +357,87 @@
             if (!dateStr)
                 return dateStr;
 
-            // Split the input date string by "/"
-            const [year, month, day] = dateStr.split("-");
+            try {
+                // Split the input date string by "/"
+                const [year, month, day] = dateStr.split("-");
 
-            // Pad the month and day with leading zeros if necessary
-            //const paddedMonth = (month.length === 1 ? '0' + month : month);
-            //const paddedDay = (day.length === 1 ? '0' + day : day);
-
-            // Return the formatted date string in "yyyy-mm-dd" format
-            return `${year}-${month}-${day}`;
+                // Return the formatted date string in "yyyy-mm-dd" format
+                return `${year}-${month}-${day}`;
+            } catch {
+                console.error("Date '" + dateStr + "' is invalid and cannot be parsed by formatDateFM()");
+                return null;
+            }
         }
 
         //Called by FMP
 
         //takes an event object from FileMaker, finds the associated event object, and updates it's contents
+        // function updateEvent(event, id) {
+
+        //     try {
+        //         event = JSON.parse(event);
+
+        //         console.log(event);
+
+        //         //find calendar event by old_id and delete it from the calendar
+        //         let eventObj = calendar.getEventById(id);
+
+        //         //required & fullcalendar-specific props
+        //         //if (event.start) {
+        //         eventObj.setStart(formatDateFC(event.start));
+        //         eventObj.setEnd(formatDateFC(event.end));
+        //         //}
+        //         eventObj.setResources([event.resourceId]);
+        //         eventObj.setProp("title", event.title);
+        //         eventObj.setProp("editable", true);
+        //         eventObj.setProp("resourceEditable", true);
+        //         eventObj.setProp("color", event.color);
+        //         eventObj.setProp("id", event.id);
+
+        //         //extended props
+        //         eventObj.setProp("resnum", event.resnum);
+        //         eventObj.setProp("status", event.status);
+
+        //         calendar.render();
+
+        //     } catch {
+        //         console.error(`Unable to update event object ${eventObj}`);
+        //         //call error capture script in FM?
+        //     }
+        // }
+
+        //takes an event object from FileMaker, finds the associated event object, and updates it's contents
         function updateEvent(event, id) {
 
-            event = JSON.parse(event);
+            try {
+                event = JSON.parse(event);
 
-            //console.log(event);
+                console.log(event);
 
-            //find calendar event by old_id and delete it from the calendar
-            let eventObj = calendar.getEventById(id);
+                //find calendar event by old_id and delete it from the calendar
+                let eventObj = calendar.getEventById(id);
 
-            if (event.start) {
-                eventObj.setStart(formatDateFC(event.start));
-                eventObj.setEnd(formatDateFC(event.end));
+                eventObj.remove();
+
+                let newEvent = {
+                    color: event.color,
+                    title: event.title,
+                    start: formatDateFC(event.start),
+                    end: formatDateFC(event.end),
+                    resourceId: event.resourceId,
+                    id: event.id,
+                    editable: true,
+                    resnum: event.resnum,
+                    status: event.status
+                }
+
+                //create new event on calendar
+                eventObj = calendar.addEvent(newEvent, eventSource);
+
+            } catch {
+                console.error(`Unable to update event object ${eventObj}`);
+                //call error capture script in FM?
             }
-            eventObj.setResources([event.resourceId]);
-            eventObj.setProp("title", event.title);
-            eventObj.setProp("editable", true);
-            eventObj.setProp("resourceEditable", true);
-            eventObj.setProp("color", event.color);
-            eventObj.setProp("id", event.id);
-
-            calendar.render();
         }
 
         //reverts event object that was set in "cacheEvent" var to it's "old" details
@@ -471,10 +449,18 @@
             calendar.render();
         }
 
+        //adds new eventSource object to calendar from a passed Execute FileMaker Data API json object
+        function addEvents(json) {
+            preparedEvents = prepareEvents(json);
+            eventSource = calendar.addEventSource(preparedEvents);
+        }
+
         //takes a Execute FileMaker Data API response and replaces all of the event data currently on the calendar
         function refreshEvents(events) {
 
             events = JSON.parse(events);
+
+            eventSource.refetch();
 
             eventSource.remove();
             addEvents(events);
@@ -496,14 +482,6 @@
             scroller.scrollLeft(newdate.offsetLeft);
         }
 
-        function scrollByInterval(currentDate, interval) {
-
-            calendar.scrollToTime({ days: 14 });
-
-            //console.log(calendar.getDate());
-
-        }
-
         function changeDateRange(start, duration) {
 
             calendar.gotoDate(start);
@@ -520,60 +498,80 @@
             let resourceEl = document.querySelector('.fc-datagrid-cell-frame');
             let resourceAreaWidth = parseInt(getComputedStyle(resourceEl).width);
 
-            console.log(width);
-            console.log(resourceAreaWidth);
-
             //subtract the width of the "Resource" column from the width of the window, then divide by number of days specified
             width -= resourceAreaWidth;
             width /= duration;
 
-            console.log(width);
+            let slotLabelFormat = {
+                "day": "numeric",
+                "month": "numeric",
+                "omitCommas": true,
+            };
+
+            //remove weekday name from date text if longer than 15 days
+            if (duration <= 15) {
+                slotLabelFormat.weekday = "short";
+            }
+
+            //change contents of date column header
+            calendar.setOption('slotLabelFormat', slotLabelFormat);
 
             //set size of date columns
             calendar.setOption('slotMinWidth', width);
         }
 
-        function findLeftmostVisibleDate() {
-
-            var container = document.querySelector('.fc-timeline-slots table');
-            console.log(getComputedStyle(container).width);
-            console.log(container.getBoundingClientRect());
-            var dateElements = container.getAttribute(dataset.date);
-            var closestDate = null;
-            var minDistance = Infinity;
-
-            dateElements.forEach(function (element) {
-                var rect = element.getBoundingClientRect();
-                var containerRect = container.getBoundingClientRect();
-                var offsetLeft = rect.left - containerRect.left + scrollLeft;
-
-                if (offsetLeft >= scrollLeft && offsetLeft < minDistance) {
-                    minDistance = offsetLeft;
-                    closestDate = element.getAttribute('data-date');
-                }
-            });
-
-            console.log('Leftmost visible date:', closestDate);
+        function removeEvent(id) {
+            let event = calendar.getEventById(id);
+            event.remove();
         }
 
-        /*function removeEvent(events) {
-            calendar.fullCalendar('removeEvents', events);
+        function setEnd(id, end) {
+            calendar.getEventById(id);
+
+
+        }
+
+        /*function scrollByInterval(currentDate, interval) {
+
+            calendar.scrollToTime({ days: 14 });
         }*/
 
-        /*function updateResources(resources) {
-            calendar.fullCalendar('updateResources', events);
-        }*/
+        /*function findLeftmostVisibleDate() {
+
+    var container = document.querySelector('.fc-timeline-slots table');
+    console.log(getComputedStyle(container).width);
+    console.log(container.getBoundingClientRect());
+    var dateElements = container.getAttribute(dataset.date);
+    var closestDate = null;
+    var minDistance = Infinity;
+
+    dateElements.forEach(function (element) {
+        var rect = element.getBoundingClientRect();
+        var containerRect = container.getBoundingClientRect();
+        var offsetLeft = rect.left - containerRect.left + scrollLeft;
+
+        if (offsetLeft >= scrollLeft && offsetLeft < minDistance) {
+            minDistance = offsetLeft;
+            closestDate = element.getAttribute('data-date');
+        }
+    });
+
+    console.log('Leftmost visible date:', closestDate);
+}*/
 
     </script>
 </head>
 
 <body>
     <div id='calendar'></div>
-    <div>
-        <!-- <button onclick="setZoom(7)">7 day</button>
+    <!--<div>
+        <button onclick="setZoom(7)">7 day</button>
         <button onclick="setZoom(15)">15 day</button>
         <button onclick="setZoom(30)">30 day</button>
-        <button onclick="findLeftmostVisibleDate()">dsds</button> -->
+        <button onclick="setZoom(100)">100 day</button>
+    </div>-->
+    <div>
+        <button onclick="setEnd('19A7B0EB-C634-4916-A078-C86B5C050B50', '2024-06-07')">set end</button>
     </div>
 </body>
 

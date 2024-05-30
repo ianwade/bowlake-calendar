@@ -1,161 +1,90 @@
 {
     "$schema": "https://carafe.fm/schema/draft-02/config.schema.json#",
-    "foo": {
-        "source": "config",
-        "value": "Hello, World!",
-        "category": "Config Options",
-        "label": "Foo",
-        "sort": 1,
-        "type": "text"
-    },
-    "bar": {
-        "source": "data",
-        "category": "Data Options",
-        "label": "Bar",
-        "sort": 2,
-        "type": "text"
-    },
-    "baz": {
-        "source": "libraries",
-        "path": "/test.txt",
-        "category": "Library Options",
-        "label": "Baz",
-        "sort": 3,
-        "type": "text"
-    },
-    "allDaySlot": {
-        "category": "Sample Data",
-        "source": "data",
-        "type": "text"
-    },
-    "allowDoubleClick": {
-        "category": "Sample Data",
-        "source": "data",
-        "type": "text"
-    },
-    "clickScript": {
-        "category": "Sample Data",
-        "source": "data",
-        "type": "text"
-    },
-    "dateIncrement": {
-        "category": "Sample Data",
-        "source": "data",
-        "type": "jsonObject"
-    },
+
     "initialDate": {
-        "category": "Sample Data",
-        "source": "data",
-        "type": "text"
-    },
-    "doubleclickScript": {
-        "category": "Sample Data",
         "source": "data",
         "type": "text"
     },
     "duration": {
-        "category": "Sample Data",
         "source": "data",
         "type": "jsonObject"
     },
     "events": {
-        "category": "Sample Data",
         "source": "data",
         "type": "jsonObject"
     },
     "filename": {
-        "category": "Sample Data",
-        "source": "data",
-        "type": "text"
-    },
-    "firstDayOfWeek": {
-        "category": "Sample Data",
-        "source": "data",
-        "type": "number"
-    },
-    "maxTime": {
-        "category": "Sample Data",
-        "source": "data",
-        "type": "text"
-    },
-    "minTime": {
-        "category": "Sample Data",
         "source": "data",
         "type": "text"
     },
     "resourceColumns": {
-        "category": "Sample Data",
         "source": "data",
         "type": "jsonArray"
     },
     "resources": {
-        "category": "Sample Data",
         "source": "data",
         "type": "jsonObject"
     },
-    "resourceOrder": {
-        "category": "Sample Data",
-        "source": "data",
-        "type": "text"
-    },
     "schedulerLicenseKey": {
-        "category": "Sample Data",
         "source": "data",
         "type": "text"
     },
     "slotDuration": {
-        "category": "Sample Data",
         "source": "data",
         "type": "jsonObject"
     },
     "slotLabelFormat": {
-        "category": "Sample Data",
         "source": "data",
         "type": "jsonArray"
     },
-    "slotWidthDays": {
-        "category": "Sample Data",
-        "source": "data",
-        "type": "number"
-    },
-    "timelineHeightPixels": {
-        "category": "Sample Data",
-        "source": "data",
-        "type": "number"
-    },
-    "tooltipTextColor": {
-        "category": "Sample Data",
+    "weekends": {
         "source": "data",
         "type": "text"
     },
+
     "updateScript": {
-        "category": "Sample Data",
         "source": "data",
         "type": "text"
     },
     "viewScript": {
-        "category": "Sample Data",
         "source": "data",
         "type": "text"
     },
     "createScript": {
-        "category": "Sample Data",
         "source": "data",
         "type": "text"
     },
-    "view": {
-        "category": "Sample Data",
-        "possibleValues": [
-            "timeline",
-            "resourceTimeline",
-            "month"
-        ],
+    "reservationLength": {
         "source": "data",
-        "type": "dropdown"
+        "type": "number"
     },
-    "weekends": {
-        "category": "Sample Data",
+    "resourceOrder": {
         "source": "data",
         "type": "text"
+    },
+    "slotWidthDays": {
+        "source": "data",
+        "type": "number"
+    },
+    "resourceAreaWidth": {
+        "source": "data",
+        "type": "text"
+    },
+    "resourceGroupField": {
+        "source": "data",
+        "type": "text"
+    },
+    "rowHeight": {
+        "source": "data",
+        "type": "text"
+    },
+	"textColor":{
+        "source": "data",
+        "type": "text"
+    },
+	"fontSize":{
+        "source": "data",
+        "type": "text"
+
     }
 }
